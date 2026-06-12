@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VOLTA · BMS Monitor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="min-h-screen bg-base font-sans text-ink antialiased">
+    <main class="mx-auto flex min-h-screen max-w-3xl flex-col px-5 py-8 sm:py-12">
+      <!-- Header -->
+      <header class="flex items-start justify-between gap-4">
+        <div>
+          <p class="font-mono text-[11px] uppercase tracking-[0.3em] text-muted">
+            ASPICE SWE.1 · Live Telemetry
+          </p>
+          <h1 class="mt-1 text-2xl font-semibold tracking-tight">
+            VOLTA <span class="text-muted">· Battery Monitor</span>
+          </h1>
+        </div>
+        <div class="flex items-center gap-2 rounded-full border border-line bg-panel px-3 py-1.5">
+          <span id="liveDot" class="h-2 w-2 rounded-full bg-muted"></span>
+          <span id="liveLabel" class="font-mono text-[11px] uppercase tracking-widest text-muted">Connecting</span>
+        </div>
+      </header>
+
+      <!-- Hero: SOC + operational state -->
+      <section class="mt-8 rounded-2xl border border-line bg-panel p-6 sm:p-8" aria-live="polite">
+        <div class="flex items-center justify-between">
+          <span class="font-mono text-[11px] uppercase tracking-[0.25em] text-muted">State of Charge</span>
+          <span id="statusPill" class="status-pill">—</span>
+        </div>
+
+        <div class="mt-5 flex flex-col items-center gap-7 sm:flex-row sm:items-stretch">
+          <div class="flex items-center justify-center">
+            <div class="batt" role="img" aria-label="State of charge">
+              <div class="batt__body">
+                <div id="battFill" class="batt__fill"></div>
+                <svg id="boltIcon" class="batt__bolt hidden" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M13 2 4.5 13.2H11l-1 8.8 9-12.2h-6.4z" />
+                </svg>
+              </div>
+              <div class="batt__cap"></div>
+            </div>
+          </div>
+
+          <div class="flex flex-1 flex-col justify-center text-center sm:text-left">
+            <div class="flex items-end justify-center gap-1 sm:justify-start">
+              <span id="socValue" class="font-mono text-6xl font-bold leading-none tabular-nums tracking-tight sm:text-7xl">--</span>
+              <span class="mb-1 font-mono text-2xl text-muted">%</span>
+            </div>
+            <p id="modeLine" class="mt-3 font-mono text-sm uppercase tracking-widest text-muted">—</p>
+            <p id="remainingLine" class="mt-2 text-sm text-ink"></p>
+            <p id="chargerNote" class="mt-1 font-mono text-[11px] tracking-wide text-electric"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Control -->
+      <p class="mt-6 font-mono text-[11px] uppercase tracking-[0.25em] text-muted">Control</p>
+      <section class="mt-3 flex flex-wrap gap-2">
+        <button data-control="charge" class="btn">Charge</button>
+        <button data-control="use" class="btn">On use</button>
+        <button data-control="idle" class="btn">Idle</button>
+      </section>
+
+      <!-- Outputs (SWR-10) -->
+      <p class="mt-6 font-mono text-[11px] uppercase tracking-[0.25em] text-muted">Outputs</p>
+      <section class="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div class="stat">
+          <p class="stat__label">SOH</p>
+          <p><span id="sohValue" class="stat__value">--</span><span class="stat__unit">%</span></p>
+        </div>
+        <div class="stat">
+          <p class="stat__label">Cycles</p>
+          <p><span id="cycleValue" class="stat__value">--</span></p>
+        </div>
+        <div class="stat flex items-center justify-between">
+          <div>
+            <p class="stat__label">Voltage alarm</p>
+            <p id="vAlarmText" class="font-mono text-sm text-muted">—</p>
+          </div>
+          <span id="vAlarmLed" class="led"></span>
+        </div>
+        <div class="stat flex items-center justify-between">
+          <div>
+            <p class="stat__label">Temp alarm</p>
+            <p id="tAlarmText" class="font-mono text-sm text-muted">—</p>
+          </div>
+          <span id="tAlarmLed" class="led"></span>
+        </div>
+      </section>
+
+      <!-- Inputs (sensor signals, SRS §6) -->
+      <p class="mt-6 font-mono text-[11px] uppercase tracking-[0.25em] text-muted">Sensor inputs</p>
+      <section class="mt-3 grid grid-cols-3 gap-4">
+        <div class="stat">
+          <p class="stat__label">Voltage</p>
+          <p><span id="voltageValue" class="stat__value">--</span><span class="stat__unit">V</span></p>
+        </div>
+        <div class="stat">
+          <p class="stat__label">Current</p>
+          <p><span id="currentValue" class="stat__value">--</span><span class="stat__unit">A</span></p>
+        </div>
+        <div class="stat">
+          <p class="stat__label">Temp</p>
+          <p><span id="tempValue" class="stat__value">--</span><span class="stat__unit">°C</span></p>
+        </div>
+      </section>
+
+      <!-- Charge / discharge graph -->
+      <div class="mt-6 flex items-center justify-between">
+        <p class="font-mono text-[11px] uppercase tracking-[0.25em] text-muted">Charge / discharge history</p>
+        <div id="rangeGroup" class="flex overflow-hidden rounded-lg border border-line">
+          <button data-range="day" class="seg">Day</button>
+          <button data-range="week" class="seg">Week</button>
+          <button data-range="month" class="seg">Month</button>
+        </div>
+      </div>
+      <section class="mt-3 rounded-2xl border border-line bg-panel p-4 sm:p-5">
+        <div class="chart-box"><canvas id="socChart"></canvas></div>
+      </section>
+
+      <!-- Verification controls -->
+      <p class="mt-6 font-mono text-[11px] uppercase tracking-[0.25em] text-muted">Verification</p>
+      <section class="mt-3 space-y-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="font-mono text-[11px] text-muted">Sim speed</span>
+          <div id="speedGroup" class="flex overflow-hidden rounded-lg border border-line">
+            <button data-scale="1" class="seg">1×</button>
+            <button data-scale="60" class="seg">60×</button>
+            <button data-scale="600" class="seg">600×</button>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="font-mono text-[11px] text-muted">Inject fault</span>
+          <button data-fault="overvoltage" class="btn">Over-V</button>
+          <button data-fault="undervoltage" class="btn">Under-V</button>
+          <button data-fault="overtemperature" class="btn">Over-T</button>
+          <button data-fault="none" class="btn btn--accent">Clear</button>
+          <button id="resetBtn" class="btn btn--ghost">Reset</button>
+        </div>
+      </section>
+
+      <footer class="mt-auto pt-10">
+        <p class="font-mono text-[11px] text-muted">
+          <span id="updatedAt">—</span> · GET <span class="text-ink">/api/bms</span>
+        </p>
+      </footer>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

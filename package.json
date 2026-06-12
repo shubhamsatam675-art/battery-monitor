@@ -1,0 +1,13 @@
+{
+  "name": "battery-monitor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Live battery status product: simulated battery + REST API (backend) and a Vite/Tailwind dashboard (frontend).",
+  "scripts": {
+    "install:all": "npm --prefix backend install && npm --prefix frontend install",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix backend start"
+  }
+}

@@ -1,0 +1,205 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-image: radial-gradient(
+      1200px 600px at 50% -10%,
+      rgba(56, 189, 248, 0.06),
+      transparent 70%
+    );
+  }
+  button:focus-visible {
+    outline: 2px solid theme("colors.electric");
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* --- Stat tiles --- */
+  .stat {
+    @apply rounded-xl border border-line bg-panel px-4 py-3;
+  }
+  .stat__label {
+    @apply font-mono text-[10px] uppercase tracking-[0.2em] text-muted;
+  }
+  .stat__value {
+    @apply font-mono text-2xl font-medium tabular-nums text-ink;
+  }
+  .stat__unit {
+    @apply ml-1 font-mono text-sm text-muted;
+  }
+
+  /* --- Buttons --- */
+  .btn {
+    @apply rounded-lg border border-line bg-panel2 px-4 py-2 font-mono text-xs
+      uppercase tracking-widest text-ink transition-colors;
+  }
+  .btn:hover {
+    @apply border-electric/60 bg-panel;
+  }
+  .btn--accent {
+    @apply border-electric/40 bg-electric/10 text-electric;
+  }
+  .btn--accent:hover {
+    @apply bg-electric/20;
+  }
+  .btn--ghost {
+    @apply bg-transparent text-muted;
+  }
+  .btn[aria-pressed="true"] {
+    @apply border-electric bg-electric/15 text-electric;
+  }
+}
+
+/* --- Battery glyph --- */
+.batt {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.batt__body {
+  position: relative;
+  width: 116px;
+  height: 220px;
+  border: 3px solid theme("colors.line");
+  border-radius: 14px;
+  background: #0d131b;
+  overflow: hidden;
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.55);
+}
+.batt__cap {
+  width: 44px;
+  height: 12px;
+  border-radius: 4px;
+  background: theme("colors.line");
+  /* sits visually on top of the body via column reverse below */
+}
+.batt {
+  flex-direction: column-reverse;
+}
+.batt__fill {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 0%;
+  background: theme("colors.nominal");
+  transition: height 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.4s ease;
+}
+/* charging sheen */
+.batt__fill.is-charging {
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0) 30%
+  );
+  animation: pulse 1.8s ease-in-out infinite;
+}
+.batt__bolt {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 56px;
+  height: 56px;
+  transform: translate(-50%, -50%);
+  color: rgba(11, 15, 20, 0.85);
+  filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.25));
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* live dot states */
+.dot-live {
+  background: theme("colors.nominal");
+  box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6);
+  animation: ping 1.6s ease-out infinite;
+}
+.dot-dead {
+  background: theme("colors.critical");
+}
+@keyframes ping {
+  0% {
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 7px rgba(52, 211, 153, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .batt__fill,
+  .batt__fill.is-charging,
+  .dot-live {
+    animation: none;
+    transition: none;
+  }
+}
+
+@layer components {
+  .status-pill {
+    @apply rounded-full border px-3 py-1 font-mono text-[11px] font-medium uppercase tracking-widest;
+    border-color: theme("colors.line");
+    color: theme("colors.muted");
+  }
+
+  .led {
+    @apply h-3.5 w-3.5 shrink-0 rounded-full;
+    background: theme("colors.line");
+    box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.6);
+  }
+  .led--on {
+    background: theme("colors.critical");
+    box-shadow: 0 0 10px 1px rgba(248, 113, 113, 0.7);
+    animation: blink 1s steps(2, start) infinite;
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0.45;
+    }
+  }
+
+  .seg {
+    @apply bg-panel2 px-3 py-1.5 font-mono text-xs text-muted transition-colors;
+    border-right: 1px solid theme("colors.line");
+  }
+  .seg:last-child {
+    border-right: none;
+  }
+  .seg:hover {
+    @apply text-ink;
+  }
+  .seg--on {
+    @apply bg-electric/15 text-electric;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .led--on {
+    animation: none;
+  }
+}
+
+/* chart container */
+.chart-box {
+  position: relative;
+  height: 230px;
+}
+@media (min-width: 640px) {
+  .chart-box {
+    height: 280px;
+  }
+}

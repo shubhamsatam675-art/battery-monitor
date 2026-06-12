@@ -1,0 +1,13 @@
+# dependencies
+node_modules/
+
+# build output
+frontend/dist/
+
+# env & secrets
+.env
+.env.*
+
+# logs / os
+*.log
+.DS_Store
