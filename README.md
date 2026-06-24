@@ -1,4 +1,9 @@
 # VOLTA · Battery Monitoring System (BMS)
+### Group Members :
+* **Shubham Satam** (ID: [00186968])
+* **Prabhu Karangutkar** (ID: [00186601])
+* **Ojas Ghugare** (ID: [00186567])
+* **Date:** June 24, 2026
 
 An implementation of the **ASPICE SWE.1** Battery Monitoring System requirements
 (Lithium-Ion, simulated sensors). The backend simulates a battery, computes the
